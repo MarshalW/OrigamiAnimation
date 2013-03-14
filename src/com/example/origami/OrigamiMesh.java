@@ -102,6 +102,7 @@ public class OrigamiMesh {
                         "  gl_FragColor = texture2D(sTexture, vTextureCoord);\n" +
                         "}\n";
 
+
         contentShader = new Shader();
         contentShader.setProgram(vertexShader, fragmentShader);
 
@@ -119,7 +120,6 @@ public class OrigamiMesh {
                         "varying vec4 vColor;" +
                         "void main() {" +
                         "  gl_FragColor= vColor;\n" +
-                        "  gl_FragColor = mix(vColor, gl_FragColor, vColor.a);\n" +
                         "}";
         shadowShader = new Shader();
         shadowShader.setProgram(vertexShader, fragmentShader);
@@ -192,36 +192,14 @@ public class OrigamiMesh {
                 0, textureCoordBuffer);
         GLES20.glEnableVertexAttribArray(aTextureCoord);
 
-//        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureIds[0]);
-//        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-//        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-//        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-//        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
-
         GLES20.glEnable(GLES20.GL_TEXTURE_2D);
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, topBitmap, 0);
         GLES20.glDisable(GLES20.GL_TEXTURE_2D);
 //        topBitmap.recycle();
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 
-        //下半部分纹理
-//        GLES20.glVertexAttribPointer(aTextureCoord, 2, GLES20.GL_FLOAT, false,
-//                0, textureCoordBuffer);
-//        GLES20.glEnableVertexAttribArray(aTextureCoord);
 
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureIds[1]);
-//        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-//        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-//        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-//        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-//                GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
         GLES20.glEnable(GLES20.GL_TEXTURE_2D);
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bottomBitmap, 0);
@@ -245,6 +223,8 @@ public class OrigamiMesh {
         //设置顶点颜色
         GLES20.glVertexAttribPointer(shadowShader.getHandle("aColor"), 4, GLES20.GL_FLOAT, false, 0,
                 this.shadowColorBuffer);
+        GLES20.glEnableVertexAttribArray(shadowShader.getHandle("aColor"));
+
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -252,6 +232,8 @@ public class OrigamiMesh {
         GLES20.glUniformMatrix4fv(shadowShader.getHandle("uMVPMatrix"), 1, false, projectionMatrix, 0);
         //画阴影多边形
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+
+        GLES20.glDisable(GLES20.GL_BLEND);
     }
 
     private void initPolygonsData() {
@@ -313,8 +295,8 @@ public class OrigamiMesh {
                 0, 0, 0, 1 - factor,
                 0, 0, 0, 0
         });
-        shadowColorBuffer.position(0);
 
+        shadowColorBuffer.position(0);
         textureCoordBuffer.position(0);
     }
 }
