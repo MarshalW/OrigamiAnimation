@@ -79,33 +79,31 @@ public class OrigamiMesh {
         }
 
         /**
-         * 设置shader
+         * 设置内容shader
          */
         String vertexShader =
                 "        uniform mat4 uProjectionM;\n" +
                         "attribute vec3 aPosition;\n" +
-                        "attribute vec4 aColor;\n" +
                         "attribute vec2 aTextureCoord;\n" +
-                        "varying vec4 vColor;\n" +
                         "varying vec2 vTextureCoord;\n" +
                         "void main() {\n" +
                         "  gl_Position = uProjectionM * vec4(aPosition, 1.0);\n" +
-                        "  vColor = aColor;\n" +
                         "  vTextureCoord = aTextureCoord;\n" +
                         "}\n";
         String fragmentShader =
                 "        precision mediump float;\n" +
-                        "varying vec4 vColor;\n" +
                         "varying vec2 vTextureCoord;\n" +
                         "uniform sampler2D sTexture;\n" +
                         "void main() {\n" +
                         "  gl_FragColor = texture2D(sTexture, vTextureCoord);\n" +
                         "}\n";
 
-
         contentShader = new Shader();
         contentShader.setProgram(vertexShader, fragmentShader);
 
+        /**
+         * 设置阴影shader
+         */
         vertexShader =
                 "uniform mat4 uMVPMatrix;" +
                         "attribute vec4 aColor;" +
@@ -162,13 +160,13 @@ public class OrigamiMesh {
         GLES20.glUniformMatrix4fv(contentShader.getHandle("uProjectionM"), 1, false, projectionMatrix, 0);
 
         int aPosition = this.contentShader.getHandle("aPosition");
-        int aColor = this.contentShader.getHandle("aColor");
         int aTextureCoord = this.contentShader.getHandle("aTextureCoord");
 
-        //设置标题顶点
+        //设置顶点
         GLES20.glVertexAttribPointer(aPosition, 3, GLES20.GL_FLOAT, false,
                 3 * 4, vertexBuffer);
         GLES20.glEnableVertexAttribArray(aPosition);
+
 
         if (textureIds == null) {
             textureIds = new int[2];
@@ -241,8 +239,8 @@ public class OrigamiMesh {
 
         float deltaY = (float) Math.abs((origamiRect.top - origamiRect.bottom) / 2 * Math.sin(this.factor * Math.PI / 2));
 
-        float z = (float) Math.cos(this.factor * Math.PI / 2);
-        float x = Math.abs(5 * origamiRect.left / (5 + z));
+        float z = (float) Math.cos(this.factor * Math.PI / 2f);
+        float x = Math.abs(5f * origamiRect.left / (5f + z));
 
         if (!animationFromBottom) {
             topPolygon = new float[]{
@@ -293,7 +291,7 @@ public class OrigamiMesh {
                 0, 0, 0, 1 - factor,
                 0, 0, 0, 0,
                 0, 0, 0, 1 - factor,
-                0, 0, 0, 0
+                1, 0, 0, 1
         });
 
         shadowColorBuffer.position(0);

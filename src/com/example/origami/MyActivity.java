@@ -5,12 +5,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class MyActivity extends Activity implements View.OnClickListener {
 
     private Button searchButton, closeButton;
-
-//    private ViewGroup contentLayout;
 
     private View contentView;
 
@@ -29,13 +28,17 @@ public class MyActivity extends Activity implements View.OnClickListener {
         closeButton = (Button) this.findViewById(R.id.closeButton);
         closeButton.setOnClickListener(this);
 
-//        contentLayout = (ViewGroup) this.findViewById(R.id.contentLayout);
-
         contentView = this.findViewById(R.id.contentView);
         contentView.setVisibility(View.INVISIBLE);
 
         resultsAnimationView = (ResultsAnimationView) this.findViewById(R.id.resultAnimationView);
         resultsAnimationView.setContentView(this.contentView);
+        resultsAnimationView.setCallback(new ResultsAnimationView.AnimationEndCallback() {
+            @Override
+            public void callback() {
+                Toast.makeText(getApplicationContext(),"执行自定义动画显示",Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

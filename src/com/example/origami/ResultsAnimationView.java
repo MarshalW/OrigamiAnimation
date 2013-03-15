@@ -1,6 +1,7 @@
 package com.example.origami;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -43,7 +44,34 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
 
     private float[] projectionMatrix = new float[16];
 
-    private int duration = 5400;
+    private int duration = 400;
+
+    private static final int WHAT_GL_VIEW = 1;
+
+    private static final int WHAT_CONTENT_VIEW = 2;
+
+    private static final int WHAT_DO_CALLBACK=3;
+
+    private static final int DELAY=10;
+
+    private AnimationEndCallback callback;
+
+    private Handler switchViewHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == WHAT_CONTENT_VIEW) {
+                contentView.setVisibility(msg.arg1);
+            }
+            if (msg.what == WHAT_GL_VIEW) {
+                ResultsAnimationView.this.setVisibility(msg.arg1);
+            }
+            if(msg.what==WHAT_DO_CALLBACK){
+                if(callback!=null){
+                    callback.callback();
+                }
+            }
+        }
+    };
 
     public ResultsAnimationView(Context context) {
         super(context);
@@ -96,17 +124,13 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
     @Override
     public void onDrawFrame(GL10 gl10) {
         glClear(GLES20.GL_COLOR_BUFFER_BIT);
-
-//        if (animation) {
         this.origamiMesh.draw(this.projectionMatrix);
-//        }
     }
 
     public void openResults() {
         if (!this.opened) {
 
             ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
-//            valueAnimator.setInterpolator(new DecelerateInterpolator());
             valueAnimator.setDuration(duration);
             valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
@@ -116,25 +140,18 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
                     requestRender();
                 }
             });
-            valueAnimator.addListener(new Animator.AnimatorListener() {
+            valueAnimator.addListener(new AnimatorListenerAdapter() {
                 @Override
-                public void onAnimationStart(Animator animator) {
-//                    animation = true;
+                public void onAnimationStart(Animator animation) {
+                    switchViewHandler.sendMessage(Message.obtain(switchViewHandler, WHAT_GL_VIEW, VISIBLE, 0));
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animator) {
                     opened = true;
-//                    animation = false;
-                    contentView.setVisibility(VISIBLE);
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animator) {
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animator) {
+                    switchViewHandler.sendMessage(Message.obtain(switchViewHandler, WHAT_CONTENT_VIEW, VISIBLE, 0));
+                    switchViewHandler.sendMessageDelayed(Message.obtain(switchViewHandler, WHAT_GL_VIEW, INVISIBLE, 0), DELAY);
+                    switchViewHandler.sendMessageDelayed(Message.obtain(switchViewHandler, WHAT_DO_CALLBACK), DELAY);
                 }
             });
             valueAnimator.start();
@@ -144,7 +161,6 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
     public void closeResults() {
         if (opened) {
             ValueAnimator valueAnimator = ValueAnimator.ofFloat(1, 0);
-//            valueAnimator.setInterpolator(new DecelerateInterpolator());
             valueAnimator.setDuration(duration);
             valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
@@ -152,31 +168,19 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
                     //设置mesh数据，刷新gl view
                     origamiMesh.setFactor((Float) valueAnimator.getAnimatedValue());
                     requestRender();
-
-//                    if (contentView.getVisibility() != GONE) {
-//                        contentView.setVisibility(GONE);
-//                    }
                 }
             });
-            valueAnimator.addListener(new Animator.AnimatorListener() {
+            valueAnimator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationStart(Animator animator) {
-//                    animation = true;
-                    contentView.setVisibility(INVISIBLE);
+                    switchViewHandler.sendMessage(Message.obtain(switchViewHandler, WHAT_GL_VIEW, VISIBLE, 0));
+                    switchViewHandler.sendMessageDelayed(Message.obtain(switchViewHandler, WHAT_CONTENT_VIEW, INVISIBLE,0), DELAY);
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animator) {
                     opened = false;
-//                    animation = false;
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animator) {
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animator) {
+                    switchViewHandler.sendMessage(Message.obtain(switchViewHandler, WHAT_GL_VIEW, INVISIBLE, 0));
                 }
             });
             valueAnimator.start();
@@ -185,5 +189,13 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
 
     public void setContentView(View contentView) {
         this.contentView = contentView;
+    }
+
+    public void setCallback(AnimationEndCallback callback) {
+        this.callback = callback;
+    }
+
+    interface AnimationEndCallback{
+        void callback();
     }
 }
