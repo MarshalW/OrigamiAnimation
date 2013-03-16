@@ -1,45 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/rootLayout"
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
         >
-    <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-        <EditText android:layout_width="240dp"
-                  android:layout_height="wrap_content"/>
-        <Button
-                android:id="@+id/searchButton"
-                android:layout_width="60dp"
-                android:layout_height="wrap_content"
-                android:text="打开"
-                ></Button>
-        <Button
-                android:id="@+id/closeButton"
-                android:layout_width="60dp"
-                android:layout_height="wrap_content"
-                android:text="关闭"
-                ></Button>
-    </LinearLayout>
-    <FrameLayout
-            android:id="@+id/contentLayout"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            >
-        <ImageView
-                android:id="@+id/contentView"
-                android:src="@drawable/p1"
-                android:scaleType="centerInside"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                />
-        <com.example.origami.ResultsAnimationView
-                android:id="@+id/resultAnimationView"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                />
-    </FrameLayout>
 </LinearLayout>
 

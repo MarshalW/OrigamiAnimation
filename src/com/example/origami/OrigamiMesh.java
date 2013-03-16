@@ -84,22 +84,32 @@ public class OrigamiMesh {
         String vertexShader =
                 "        uniform mat4 uProjectionM;\n" +
                         "attribute vec3 aPosition;\n" +
+//                        "attribute vec4 aColor;\n" +
                         "attribute vec2 aTextureCoord;\n" +
+//                        "varying vec4 vColor;\n" +
                         "varying vec2 vTextureCoord;\n" +
                         "void main() {\n" +
                         "  gl_Position = uProjectionM * vec4(aPosition, 1.0);\n" +
+//                        "  vColor = aColor;\n" +
                         "  vTextureCoord = aTextureCoord;\n" +
                         "}\n";
         String fragmentShader =
                 "        precision mediump float;\n" +
+//                        "uniform vec4 aColor;\n" +
+//                        "varying vec4 vColor;\n" +
                         "varying vec2 vTextureCoord;\n" +
                         "uniform sampler2D sTexture;\n" +
                         "void main() {\n" +
                         "  gl_FragColor = texture2D(sTexture, vTextureCoord);\n" +
+//                        "  gl_FragColor.rgb *= vColor.rgb;\n" +
+//                        "  gl_FragColor = mix(vColor, gl_FragColor, vColor.a);\n" +
+//                        "  gl_FragColor.a = 1.0;\n" +
                         "}\n";
 
-        contentShader = new Shader();
-        contentShader.setProgram(vertexShader, fragmentShader);
+        if(contentShader==null){
+            contentShader = new Shader();
+            contentShader.setProgram(vertexShader, fragmentShader);
+        }
 
         /**
          * 设置阴影shader
@@ -146,6 +156,8 @@ public class OrigamiMesh {
     }
 
     public void draw(float[] projectionMatrix) {
+//        Log.d("origami","draw ...");
+
         this.initPolygonsData();
 
         this.drawTextures(projectionMatrix);
@@ -153,6 +165,7 @@ public class OrigamiMesh {
     }
 
     private void drawTextures(float[] projectionMatrix) {
+//        Log.d("origami","draw texture ");
         /**
          * 绘制头部
          */
@@ -160,6 +173,7 @@ public class OrigamiMesh {
         GLES20.glUniformMatrix4fv(contentShader.getHandle("uProjectionM"), 1, false, projectionMatrix, 0);
 
         int aPosition = this.contentShader.getHandle("aPosition");
+//        int aColor = this.contentShader.getHandle("aColor");
         int aTextureCoord = this.contentShader.getHandle("aTextureCoord");
 
         //设置顶点
@@ -257,7 +271,7 @@ public class OrigamiMesh {
                     origamiRect.right, origamiRect.top - 2 * deltaY, 0
             };
         } else {
-            //TODO 写从下往上的代码
+            //从下往上
             bottomPolygon = new float[]{
                     -x, origamiRect.bottom + deltaY, 0,
                     origamiRect.left, origamiRect.bottom, 0,
@@ -291,7 +305,7 @@ public class OrigamiMesh {
                 0, 0, 0, 1 - factor,
                 0, 0, 0, 0,
                 0, 0, 0, 1 - factor,
-                1, 0, 0, 1
+                0, 0, 0, 0
         });
 
         shadowColorBuffer.position(0);

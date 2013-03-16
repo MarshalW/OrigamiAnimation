@@ -2,18 +2,14 @@ package com.example.origami;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
 
-public class MyActivity extends Activity implements View.OnClickListener {
+import java.util.ArrayList;
+import java.util.List;
 
-    private Button searchButton, closeButton;
+public class MyActivity extends Activity {
 
-    private View contentView;
-
-    private ResultsAnimationView resultsAnimationView;
+    private RowSwitchAnimationView rowSwitchAnimationView;
 
     /**
      * Called when the activity is first created.
@@ -21,32 +17,17 @@ public class MyActivity extends Activity implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        this.setContentView(R.layout.main);
 
-        searchButton = (Button) this.findViewById(R.id.searchButton);
-        searchButton.setOnClickListener(this);
-        closeButton = (Button) this.findViewById(R.id.closeButton);
-        closeButton.setOnClickListener(this);
-
-        contentView = this.findViewById(R.id.contentView);
-        contentView.setVisibility(View.INVISIBLE);
-
-        resultsAnimationView = (ResultsAnimationView) this.findViewById(R.id.resultAnimationView);
-        resultsAnimationView.setContentView(this.contentView);
-        resultsAnimationView.setCallback(new ResultsAnimationView.AnimationEndCallback() {
-            @Override
-            public void callback() {
-                Toast.makeText(getApplicationContext(),"执行自定义动画显示",Toast.LENGTH_SHORT).show();
+        List<ViewItem> items = new ArrayList<ViewItem>() {
+            {
+                this.add(new ViewItem(R.layout.title1,R.layout.content1));
+                this.add(new ViewItem(R.layout.title2,R.layout.content2));
             }
-        });
-    }
+        };
+        rowSwitchAnimationView = new RowSwitchAnimationView(this, 150, 300, items);
 
-    @Override
-    public void onClick(View view) {
-        if (view == searchButton) {
-            this.resultsAnimationView.openResults();
-        } else {
-            this.resultsAnimationView.closeResults();
-        }
+        ViewGroup rootLayout=(ViewGroup)this.findViewById(R.id.rootLayout);
+        rootLayout.addView(rowSwitchAnimationView);
     }
 }
