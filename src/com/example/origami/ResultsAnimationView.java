@@ -11,13 +11,9 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -50,7 +46,9 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
 
     private static final int WHAT_CONTENT_VIEW = 2;
 
-    private static final int WHAT_DO_CALLBACK=3;
+    private static final int WHAT_DO_CALLBACK_FOR_OPENED =3;
+
+    private static final int WHAT_DO_CALLBACK_FOR_CLOSED =4;
 
     private static final int DELAY=10;
 
@@ -65,9 +63,14 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
             if (msg.what == WHAT_GL_VIEW) {
                 ResultsAnimationView.this.setVisibility(msg.arg1);
             }
-            if(msg.what==WHAT_DO_CALLBACK){
+            if(msg.what== WHAT_DO_CALLBACK_FOR_OPENED){
                 if(callback!=null){
-                    callback.callback();
+                    callback.callbackForOpened();
+                }
+            }
+            if(msg.what== WHAT_DO_CALLBACK_FOR_CLOSED){
+                if(callback!=null){
+                    callback.callbackForClosed();
                 }
             }
         }
@@ -151,7 +154,7 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
                     opened = true;
                     switchViewHandler.sendMessage(Message.obtain(switchViewHandler, WHAT_CONTENT_VIEW, VISIBLE, 0));
                     switchViewHandler.sendMessageDelayed(Message.obtain(switchViewHandler, WHAT_GL_VIEW, INVISIBLE, 0), DELAY);
-                    switchViewHandler.sendMessageDelayed(Message.obtain(switchViewHandler, WHAT_DO_CALLBACK), DELAY);
+                    switchViewHandler.sendMessageDelayed(Message.obtain(switchViewHandler, WHAT_DO_CALLBACK_FOR_OPENED), DELAY);
                 }
             });
             valueAnimator.start();
@@ -181,6 +184,7 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
                 public void onAnimationEnd(Animator animator) {
                     opened = false;
                     switchViewHandler.sendMessage(Message.obtain(switchViewHandler, WHAT_GL_VIEW, INVISIBLE, 0));
+                    switchViewHandler.sendMessageDelayed(Message.obtain(switchViewHandler, WHAT_DO_CALLBACK_FOR_CLOSED), DELAY);
                 }
             });
             valueAnimator.start();
@@ -196,6 +200,8 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
     }
 
     interface AnimationEndCallback{
-        void callback();
+        void callbackForOpened();
+
+        void callbackForClosed();
     }
 }
