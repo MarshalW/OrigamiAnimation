@@ -34,7 +34,7 @@
         <ImageView
                 android:id="@+id/contentView"
                 android:src="@drawable/p1"
-                android:scaleType="centerInside"
+                android:scaleType="centerCrop"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 />

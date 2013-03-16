@@ -40,7 +40,7 @@ public class ResultsAnimationView extends GLSurfaceView implements GLSurfaceView
 
     private float[] projectionMatrix = new float[16];
 
-    private int duration = 400;
+    private int duration = 4400;
 
     private static final int WHAT_GL_VIEW = 1;
 
